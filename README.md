@@ -14,6 +14,14 @@ Projeto em desenvolvimento colaborativo.
 - `rafael.silva` — branch de desenvolvimento individual
 - `rv.teixeira` — branch de desenvolvimento individual
 
+## Objetivo
+
+Desenvolver um **Calendário de Férias** para o time, com as seguintes funcionalidades:
+
+- Registro de intenções de férias para o ano
+- Aprovação pelo gestor
+- Registro de backup durante o período de férias
+
 ## Status
 
-Em definição. Objetivo e stack a serem determinados.
+Em desenvolvimento. Stack a ser determinada.
