@@ -14,6 +14,15 @@ Projeto em desenvolvimento colaborativo.
 - `rafael.silva` — branch de desenvolvimento individual
 - `rv.teixeira` — branch de desenvolvimento individual
 
+## Fluxo do Board
+
+| Etapa | Gatilho |
+|---|---|
+| **In Progress** | Issue atribuída e em desenvolvimento |
+| **In Review** | PR aberta para `dev` |
+| **Testing** | PR aprovada pelo revisor |
+| **Done** | PR mergeada na `main` |
+
 ## Objetivo
 
 Desenvolver um **Calendário de Férias** para o time, com as seguintes funcionalidades:
