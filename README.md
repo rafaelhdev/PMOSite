@@ -19,7 +19,7 @@ Projeto em desenvolvimento colaborativo.
 Desenvolver um **Calendário de Férias** para o time, com as seguintes funcionalidades:
 
 - Registro de intenções de férias para o ano
-- Aprovação pelo gestor
+- Confirmação pelo próprio colaborador quando as férias forem aprovadas
 - Registro de backup durante o período de férias
 
 ## Status
