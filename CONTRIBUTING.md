@@ -44,5 +44,6 @@ rafael.silva / rv.teixeira → dev → main
 ## Comunicação
 
 - Usar os números das issues/PRs (#4, #5...) para referenciar tarefas nas conversas
-- Decisões relevantes devem ser registradas no Notion (banco **Decisões**)
-- Atas de reunião devem ser registradas no Notion (banco **Reuniões**)
+- Decisões relevantes devem ser registradas em `docs/decisoes.md`
+- Atas de reunião devem ser registradas em `docs/reunioes.md`
+- Ações de follow-up devem ser registradas em `docs/acoes.md`
