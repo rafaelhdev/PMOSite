@@ -1,0 +1,53 @@
+name: Move PR to In Review
+
+on:
+  pull_request:
+    types: [opened, review_requested]
+
+jobs:
+  move-to-review:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Add PR to project and set status to In Review
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.PROJECT_TOKEN }}
+          script: |
+            const projectId = "PVT_kwHOAzheV84BUgDS";
+            const statusFieldId = "PVTSSF_lAHOAzheV84BUgDSzhBnvKI";
+            const inReviewOptionId = "df73e18b";
+
+            // Add PR to project
+            const addResult = await github.graphql(`
+              mutation($projectId: ID!, $contentId: ID!) {
+                addProjectV2ItemById(input: { projectId: $projectId, contentId: $contentId }) {
+                  item { id }
+                }
+              }
+            `, {
+              projectId,
+              contentId: context.payload.pull_request.node_id
+            });
+
+            const itemId = addResult.addProjectV2ItemById.item.id;
+
+            // Set status to In Review
+            await github.graphql(`
+              mutation($projectId: ID!, $itemId: ID!, $fieldId: ID!, $optionId: String!) {
+                updateProjectV2ItemFieldValue(input: {
+                  projectId: $projectId,
+                  itemId: $itemId,
+                  fieldId: $fieldId,
+                  value: { singleSelectOptionId: $optionId }
+                }) {
+                  projectV2Item { id }
+                }
+              }
+            `, {
+              projectId,
+              itemId,
+              fieldId: statusFieldId,
+              optionId: inReviewOptionId
+            });
+
+            console.log(`PR #${context.payload.pull_request.number} movido para In Review no project.`);
