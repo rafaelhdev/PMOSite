@@ -1,0 +1,36 @@
+name: Validate commit messages
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+
+jobs:
+  check-commits:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check commit messages reference an issue
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.PROJECT_TOKEN }}
+          script: |
+            const { data: commits } = await github.rest.pulls.listCommits({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.payload.pull_request.number
+            });
+
+            const invalid = commits.filter(c => {
+              const msg = c.commit.message;
+              // Ignora commits de merge e co-authored
+              if (msg.startsWith('Merge ')) return false;
+              return !/#\d+/.test(msg);
+            });
+
+            if (invalid.length > 0) {
+              const list = invalid.map(c => `- \`${c.sha.slice(0, 7)}\` ${c.commit.message.split('\n')[0]}`).join('\n');
+              core.setFailed(
+                `❌ Os seguintes commits não referenciam uma issue (#número):\n\n${list}\n\nExemplo correto: "Add vacation calendar feature #4"`
+              );
+            } else {
+              console.log('✅ Todos os commits referenciam uma issue.');
+            }

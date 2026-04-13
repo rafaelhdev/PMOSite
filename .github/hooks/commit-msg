@@ -1,0 +1,14 @@
+#!/bin/sh
+# Valida que a mensagem de commit referencia uma issue (#número)
+
+commit_msg=$(cat "$1")
+
+if ! echo "$commit_msg" | grep -qE "#[0-9]+"; then
+  echo ""
+  echo "❌ Commit rejeitado: a mensagem deve referenciar uma issue."
+  echo "   Exemplo: 'Add vacation calendar feature #4'"
+  echo ""
+  exit 1
+fi
+
+exit 0
