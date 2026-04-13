@@ -8,7 +8,7 @@ rafael.silva / rv.teixeira → dev → main
 
 - Todo desenvolvimento deve ser feito na branch individual de cada colaborador
 - O merge para `dev` requer **1 aprovação** do outro colaborador
-- O merge para `main` requer **aprovação dos dois colaboradores**
+- O merge para `main` requer **1 aprovação do outro colaborador** (o autor do PR não pode aprovar o próprio PR)
 
 ## Regras do board (GitHub Projects)
 
