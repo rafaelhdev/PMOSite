@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>PMOSite - Requisitos</title>
+<style>
+  body { font-family: Arial, sans-serif; max-width: 900px; margin: 0 auto; padding: 40px 20px; color: #333; background: #f9f9f9; }
+  .cover { text-align: center; padding: 60px 0 40px; border-bottom: 3px solid #1F4E79; margin-bottom: 40px; }
+  .cover h1 { font-size: 3em; color: #1F4E79; margin: 0; }
+  .cover h2 { font-size: 1.5em; color: #2E75B6; font-weight: normal; margin: 8px 0; }
+  .cover p { color: #888; }
+  h2 { color: #1F4E79; border-bottom: 2px solid #1F4E79; padding-bottom: 6px; margin-top: 40px; }
+  h3 { color: #2E75B6; margin-top: 24px; }
+  p { line-height: 1.7; }
+  ul { line-height: 1.9; }
+  table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 0.9em; }
+  th { background: #1F4E79; color: white; padding: 10px 12px; text-align: left; }
+  td { padding: 8px 12px; border: 1px solid #ddd; }
+  tr:nth-child(even) td { background: #f5f5f5; }
+  code { background: #eee; padding: 2px 6px; border-radius: 3px; font-size: 0.9em; }
+  .badge { display: inline-block; padding: 2px 10px; border-radius: 4px; font-size: 0.85em; font-weight: bold; }
+  .backlog { background: #EBEBEB; color: #555; }
+  .blocked { background: #FADBD8; color: #922B21; }
+  .in-progress { background: #FFF3CD; color: #856404; }
+  .in-review { background: #D6EAF8; color: #1a5276; }
+  .testing { background: #FDEBD0; color: #784212; }
+  .done { background: #D5F5E3; color: #1e8449; }
+</style>
+</head>
+<body>
+
+<div class="cover">
+  <h1>PMOSite</h1>
+  <h2>Documento de Requisitos</h2>
+  <p>Versão 1.0 — Abril de 2026</p>
+</div>
+
+<h2>1. Visão Geral do Projeto</h2>
+<p>O PMOSite é uma plataforma web desenvolvida pelo time de PMO para centralizar o gerenciamento de férias dos colaboradores. O sistema permite o registro de intenções de férias, confirmação de aprovações e indicação de backups, com integração ao Fluig para abertura de solicitações formais.</p>
+
+<h2>2. Objetivo</h2>
+<p>Desenvolver um <strong>Calendário de Férias</strong> com as seguintes funcionalidades:</p>
+<ul>
+  <li>Registro de intenções de férias para o ano</li>
+  <li>Confirmação pelo próprio colaborador quando as férias forem aprovadas</li>
+  <li>Registro de backup durante o período de férias</li>
+  <li>Abertura de solicitação no Fluig</li>
+</ul>
+
+<h2>3. Colaboradores</h2>
+<table>
+  <tr><th>Colaborador</th><th>GitHub</th></tr>
+  <tr><td>rafael.silva</td><td>@rafaelhdev</td></tr>
+  <tr><td>rv.teixeira</td><td>@rebecavalgueiro</td></tr>
+</table>
+
+<h2>4. Stack Tecnológica</h2>
+<table>
+  <tr><th>Camada</th><th>Tecnologia</th></tr>
+  <tr><td>Frontend</td><td>React + Vite</td></tr>
+  <tr><td>Estilização</td><td>TailwindCSS</td></tr>
+</table>
+
+<h2>5. Fluxo de Branches</h2>
+<table>
+  <tr><th>Branch</th><th>Descrição</th></tr>
+  <tr><td><code>main</code></td><td>Produção — código estável</td></tr>
+  <tr><td><code>dev</code></td><td>Integração — PRs das branches individuais vão aqui antes da main</td></tr>
+  <tr><td><code>rafael.silva</code></td><td>Branch de desenvolvimento individual</td></tr>
+  <tr><td><code>rv.teixeira</code></td><td>Branch de desenvolvimento individual</td></tr>
+</table>
+
+<h2>6. Fluxo do Board</h2>
+<table>
+  <tr><th>Status</th><th>Gatilho</th></tr>
+  <tr><td><span class="badge backlog">Backlog</span></td><td>Issue criada e aguardando priorização</td></tr>
+  <tr><td><span class="badge in-progress">In Progress</span></td><td>Issue atribuída e em desenvolvimento</td></tr>
+  <tr><td><span class="badge blocked">Blocked</span></td><td>Issue com impedimento que impede o avanço</td></tr>
+  <tr><td><span class="badge in-review">In Review</span></td><td>PR aberta para dev</td></tr>
+  <tr><td><span class="badge testing">Testing</span></td><td>PR aprovada pelo revisor</td></tr>
+  <tr><td><span class="badge done">Done</span></td><td>PR mergeada na main</td></tr>
+</table>
+
+<h2>7. User Stories</h2>
+
+<h3>7.1 Estrutura Base</h3>
+<table>
+  <tr><th>ID</th><th>Título</th><th>User Story</th></tr>
+  <tr><td>#12</td><td>Criar estrutura de pastas</td><td>Como desenvolvedor, quero uma estrutura organizada de pastas, para que o time tenha um padrão claro de onde cada arquivo deve ficar.</td></tr>
+  <tr><td>#13</td><td>Configurar TailwindCSS</td><td>Como desenvolvedor, quero o TailwindCSS configurado, para que eu possa estilizar componentes de forma rápida e consistente.</td></tr>
+  <tr><td>#14</td><td>Criar componentes base</td><td>Como desenvolvedor, quero componentes base reutilizáveis (Header, Footer, Layout), para que todas as páginas tenham estrutura visual consistente.</td></tr>
+  <tr><td>#15</td><td>Definir paleta de cores</td><td>Como usuário, quero uma identidade visual definida com paleta de cores, para que o site tenha aparência profissional e padronizada.</td></tr>
+</table>
+
+<h3>7.2 Colaboradores</h3>
+<table>
+  <tr><th>ID</th><th>Título</th><th>User Story</th></tr>
+  <tr><td>#16</td><td>Tela de cadastro de colaborador</td><td>Como colaborador, quero me cadastrar no sistema informando meus dados, para que eu possa registrar e acompanhar minhas férias.</td></tr>
+  <tr><td>#17</td><td>Listagem de colaboradores</td><td>Como gestor, quero visualizar a lista de todos os colaboradores cadastrados, para que eu tenha uma visão geral do time.</td></tr>
+  <tr><td>#18</td><td>Página de perfil do colaborador</td><td>Como colaborador, quero ter uma página de perfil com meu histórico de férias, para que eu acompanhe minhas informações de forma centralizada.</td></tr>
+</table>
+
+<h3>7.3 Calendário</h3>
+<table>
+  <tr><th>ID</th><th>Título</th><th>User Story</th></tr>
+  <tr><td>#19</td><td>Calendário anual</td><td>Como colaborador, quero visualizar um calendário anual com as férias do time, para que eu possa planejar meu período sem conflitos.</td></tr>
+  <tr><td>#20</td><td>Formulário de intenção de férias</td><td>Como colaborador, quero registrar minhas intenções de férias informando o período desejado, para que o time saiba com antecedência.</td></tr>
+  <tr><td>#21</td><td>Visualização por colaborador</td><td>Como gestor, quero visualizar as férias de cada colaborador individualmente, para que eu acompanhe a situação de cada pessoa do time.</td></tr>
+  <tr><td>#22</td><td>Visualização consolidada do time</td><td>Como gestor, quero ver quem está de férias em cada período do ano, para que eu possa garantir cobertura adequada do time.</td></tr>
+  <tr><td>#23</td><td>Validação de conflito de datas</td><td>Como colaborador, quero ser avisado quando meu período conflita com o de outro colega, para que o time nunca fique sem cobertura.</td></tr>
+</table>
+
+<h3>7.4 Aprovação</h3>
+<table>
+  <tr><th>ID</th><th>Título</th><th>User Story</th></tr>
+  <tr><td>#24</td><td>Confirmação de aprovação</td><td>Como colaborador, quero confirmar no sistema quando minhas férias forem aprovadas, para que o time saiba que estão confirmadas.</td></tr>
+  <tr><td>#25</td><td>Indicador visual de status</td><td>Como colaborador, quero visualizar o status das minhas férias (Intenção, Aprovado, Negado), para que eu saiba em que etapa está minha solicitação.</td></tr>
+</table>
+
+<h3>7.5 Backup</h3>
+<table>
+  <tr><th>ID</th><th>Título</th><th>User Story</th></tr>
+  <tr><td>#26</td><td>Formulário para indicar backup</td><td>Como colaborador, quero indicar meu backup durante as férias, para que o time saiba quem me substitui durante minha ausência.</td></tr>
+  <tr><td>#27</td><td>Notificação visual de backup</td><td>Como colaborador de backup, quero ser notificado visualmente, para que eu me prepare para cobrir o período de ausência do colega.</td></tr>
+</table>
+
+<h3>7.6 Fluig</h3>
+<table>
+  <tr><th>ID</th><th>Título</th><th>User Story</th></tr>
+  <tr><td>#28</td><td>Abertura de solicitação no Fluig</td><td>Como colaborador, quero abrir minha solicitação de férias no Fluig pelo site, para que eu não precise acessar o Fluig separadamente.</td></tr>
+  <tr><td>#29</td><td>Status da solicitação no Fluig</td><td>Como colaborador, quero visualizar o status da solicitação no Fluig dentro do site, para acompanhar sem precisar sair da plataforma.</td></tr>
+</table>
+
+<h3>7.7 UX/UI</h3>
+<table>
+  <tr><th>ID</th><th>Título</th><th>User Story</th></tr>
+  <tr><td>#30</td><td>Layout responsivo para mobile</td><td>Como colaborador, quero acessar o site pelo celular com boa experiência, para que eu possa consultar e registrar férias de qualquer lugar.</td></tr>
+  <tr><td>#31</td><td>Dashboard com visão geral do time</td><td>Como gestor, quero um dashboard com visão geral do time e status das férias, para que eu tenha uma visão rápida e consolidada da equipe.</td></tr>
+</table>
+
+</body>
+</html>

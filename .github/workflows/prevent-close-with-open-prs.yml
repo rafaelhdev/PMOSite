@@ -1,0 +1,48 @@
+name: Prevent closing issue with open PRs
+
+on:
+  issues:
+    types: [closed]
+
+jobs:
+  check-linked-prs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Reopen issue if linked PRs are still open
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.PROJECT_TOKEN }}
+          script: |
+            const issueNumber = context.payload.issue.number;
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+
+            // Search for open PRs that reference this issue
+            const query = `repo:${owner}/${repo} is:pr is:open #${issueNumber}`;
+            const searchResult = await github.rest.search.issuesAndPullRequests({ q: query });
+
+            const openPRs = searchResult.data.items.filter(item => item.pull_request);
+
+            if (openPRs.length > 0) {
+              const prList = openPRs.map(pr => `- #${pr.number}: ${pr.title}`).join('\n');
+
+              // Reopen the issue
+              await github.rest.issues.update({
+                owner,
+                repo,
+                issue_number: issueNumber,
+                state: 'open'
+              });
+
+              // Add a comment explaining why
+              await github.rest.issues.createComment({
+                owner,
+                repo,
+                issue_number: issueNumber,
+                body: `⚠️ Esta issue não pode ser fechada pois ainda há PRs abertas vinculadas a ela:\n\n${prList}\n\nFeche ou faça o merge das PRs antes de encerrar esta issue.`
+              });
+
+              console.log(`Issue #${issueNumber} reaberta — ${openPRs.length} PR(s) ainda aberta(s).`);
+            } else {
+              console.log(`Issue #${issueNumber} fechada corretamente — nenhuma PR aberta vinculada.`);
+            }
