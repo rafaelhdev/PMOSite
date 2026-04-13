@@ -23,6 +23,11 @@ Desenvolver um **Calendário de Férias** para o time, com as seguintes funciona
 - Registro de backup durante o período de férias
 - Abertura de solicitação no Fluig
 
+## Stack Tecnológica
+
+- **Frontend:** React + Vite
+- **Estilização:** TailwindCSS
+
 ## Status
 
-Em desenvolvimento. Stack a ser determinada.
+Em desenvolvimento.
