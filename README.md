@@ -18,7 +18,9 @@ Projeto em desenvolvimento colaborativo.
 
 | Etapa | Gatilho |
 |---|---|
+| **Backlog** | Issue criada e aguardando priorização |
 | **In Progress** | Issue atribuída e em desenvolvimento |
+| **Blocked** | Issue com impedimento que impede o avanço |
 | **In Review** | PR aberta para `dev` |
 | **Testing** | PR aprovada pelo revisor |
 | **Done** | PR mergeada na `main` |
