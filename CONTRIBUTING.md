@@ -20,6 +20,7 @@ rafael.silva / rv.teixeira → dev → main
 | `Ready` | Tarefa pronta para ser iniciada |
 | `In progress` | Tarefa em desenvolvimento ativo |
 | `In review` | PR aberta aguardando revisão |
+| `Blocked` | Tarefa bloqueada aguardando dependência ou decisão |
 | `Done` | Tarefa concluída e mergeada |
 
 ### Automações ativas
