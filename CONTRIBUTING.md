@@ -8,7 +8,7 @@ rafael.silva / rv.teixeira → dev → main
 
 - Todo desenvolvimento deve ser feito na branch individual de cada colaborador
 - O merge para `dev` requer **1 aprovação** do outro colaborador
-- O merge para `main` requer **aprovação dos dois colaboradores**
+- O merge para `main` requer **1 aprovação do outro colaborador** (o autor do PR não pode aprovar o próprio PR)
 
 ## Regras do board (GitHub Projects)
 
@@ -20,6 +20,7 @@ rafael.silva / rv.teixeira → dev → main
 | `Ready` | Tarefa pronta para ser iniciada |
 | `In progress` | Tarefa em desenvolvimento ativo |
 | `In review` | PR aberta aguardando revisão |
+| `Blocked` | Tarefa bloqueada aguardando dependência ou decisão |
 | `Done` | Tarefa concluída e mergeada |
 
 ### Automações ativas
@@ -43,5 +44,6 @@ rafael.silva / rv.teixeira → dev → main
 ## Comunicação
 
 - Usar os números das issues/PRs (#4, #5...) para referenciar tarefas nas conversas
-- Decisões relevantes devem ser registradas no Notion (banco **Decisões**)
-- Atas de reunião devem ser registradas no Notion (banco **Reuniões**)
+- Decisões relevantes devem ser registradas em `docs/decisoes.md`
+- Atas de reunião devem ser registradas em `docs/reunioes.md`
+- Ações de follow-up devem ser registradas em `docs/acoes.md`
