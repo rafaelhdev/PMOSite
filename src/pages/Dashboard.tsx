@@ -26,10 +26,10 @@ export default function Dashboard() {
   )
 
   const statCards = [
-    { label: 'Colaboradores', value: collaborators.length, color: 'bg-primary-50 border-primary-200', text: 'text-primary-600' },
-    { label: 'De férias agora', value: onVacationNow.length, color: 'bg-yellow-50 border-yellow-200', text: 'text-yellow-700' },
-    { label: 'Próximas férias', value: upcoming.length, color: 'bg-blue-50 border-blue-200', text: 'text-blue-700' },
-    { label: 'Aguardando aprovação', value: pending.length, color: 'bg-orange-50 border-orange-200', text: 'text-orange-700' },
+    { label: 'Colaboradores',       value: collaborators.length,    color: 'bg-primary-50 border-primary-200',     text: 'text-primary-600' },
+    { label: 'De férias agora',      value: onVacationNow.length,   color: 'bg-warning-50 border-warning-500',     text: 'text-warning-700' },
+    { label: 'Próximas férias',      value: upcoming.length,        color: 'bg-secondary-50 border-secondary-300', text: 'text-secondary-600' },
+    { label: 'Aguardando aprovação', value: pending.length,         color: 'bg-danger-50 border-danger-500',       text: 'text-danger-600' },
   ]
 
   return (
@@ -38,12 +38,12 @@ export default function Dashboard() {
 
       {/* Backup alert */}
       {backupNotifications.length > 0 && (
-        <div className="mb-6 bg-blue-50 border border-blue-300 rounded-xl p-4">
-          <p className="text-blue-800 font-medium text-sm mb-1">🔔 Você tem responsabilidade de backup</p>
+        <div className="mb-6 bg-secondary-50 border border-secondary-300 rounded-xl p-4">
+          <p className="text-secondary-600 font-medium text-sm mb-1">🔔 Você tem responsabilidade de backup</p>
           {backupNotifications.map(v => {
             const owner = collaborators.find(c => c.id === v.collaboratorId)
             return (
-              <p key={v.id} className="text-xs text-blue-600">
+              <p key={v.id} className="text-xs text-secondary-500">
                 Backup de <strong>{owner?.name}</strong>: {formatDate(v.startDate)} → {formatDate(v.endDate)}
               </p>
             )
@@ -114,7 +114,7 @@ export default function Dashboard() {
         <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-5 lg:col-span-2">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-base font-semibold text-gray-800">Visão Consolidada do Time</h2>
-            <Link to="/calendar" className="text-xs text-primary-500 hover:text-primary-700">Ver calendário →</Link>
+            <Link to="/calendar" className="text-xs text-primary-500 hover:text-primary-600">Ver calendário →</Link>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-xs">

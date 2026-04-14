@@ -20,72 +20,65 @@ export default function CollaboratorRegister() {
       <h1 className="text-2xl font-bold text-primary-600 mb-6">Cadastrar Colaborador</h1>
 
       {success && (
-        <div className="mb-4 p-3 bg-green-100 text-green-800 rounded-lg text-sm">
+        <div className="alert-success mb-4">
           Colaborador cadastrado com sucesso! Redirecionando...
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 space-y-5">
+      <form onSubmit={handleSubmit} className="card space-y-5">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Nome completo *</label>
+          <label className="label">Nome completo *</label>
           <input
             required
             type="text"
             value={form.name}
             onChange={e => setForm({ ...form, name: e.target.value })}
             placeholder="Ex: Rafael Silva"
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+            className="input"
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Cargo *</label>
+          <label className="label">Cargo *</label>
           <input
             required
             type="text"
             value={form.role}
             onChange={e => setForm({ ...form, role: e.target.value })}
             placeholder="Ex: Desenvolvedor Frontend"
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+            className="input"
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">E-mail *</label>
+          <label className="label">E-mail *</label>
           <input
             required
             type="email"
             value={form.email}
             onChange={e => setForm({ ...form, email: e.target.value })}
             placeholder="Ex: nome@sidi.org.br"
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+            className="input"
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">GitHub *</label>
+          <label className="label">GitHub *</label>
           <input
             required
             type="text"
             value={form.github}
             onChange={e => setForm({ ...form, github: e.target.value })}
             placeholder="@usuario"
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+            className="input"
           />
         </div>
 
         <div className="flex gap-3 pt-2">
-          <button
-            type="submit"
-            className="flex-1 bg-primary-600 text-white py-2 rounded-lg text-sm font-medium hover:bg-primary-700 transition-colors"
-          >
+          <button type="submit" className="btn-primary flex-1">
             Cadastrar
           </button>
-          <button
-            type="button"
-            onClick={() => navigate('/collaborators')}
-            className="flex-1 border border-gray-300 text-gray-700 py-2 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors"
-          >
+          <button type="button" onClick={() => navigate('/collaborators')} className="btn-secondary flex-1">
             Cancelar
           </button>
         </div>

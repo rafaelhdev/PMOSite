@@ -8,24 +8,24 @@ const VACATION_LABELS: Record<VacationStatus, string> = {
 }
 
 const VACATION_COLORS: Record<VacationStatus, string> = {
-  intention: 'bg-yellow-100 text-yellow-800',
-  approved: 'bg-green-100 text-green-800',
-  denied: 'bg-red-100 text-red-800',
-  confirmed: 'bg-blue-100 text-blue-800',
+  intention: 'bg-warning-50 text-warning-700 border border-warning-500',
+  approved:  'bg-success-50 text-success-700 border border-success-500',
+  denied:    'bg-danger-50 text-danger-700 border border-danger-500',
+  confirmed: 'bg-secondary-50 text-secondary-600 border border-secondary-300',
 }
 
 const FLUIG_LABELS: Record<FluigStatus, string> = {
   not_sent: 'Não enviado',
-  pending: 'Aguardando Fluig',
+  pending:  'Aguardando Fluig',
   approved: 'Aprovado no Fluig',
-  denied: 'Negado no Fluig',
+  denied:   'Negado no Fluig',
 }
 
 const FLUIG_COLORS: Record<FluigStatus, string> = {
-  not_sent: 'bg-gray-100 text-gray-600',
-  pending: 'bg-orange-100 text-orange-800',
-  approved: 'bg-green-100 text-green-800',
-  denied: 'bg-red-100 text-red-800',
+  not_sent: 'bg-neutral-100 text-neutral-500 border border-neutral-300',
+  pending:  'bg-warning-50 text-warning-700 border border-warning-500',
+  approved: 'bg-success-50 text-success-700 border border-success-500',
+  denied:   'bg-danger-50 text-danger-700 border border-danger-500',
 }
 
 export function VacationStatusBadge({ status }: { status: VacationStatus }) {

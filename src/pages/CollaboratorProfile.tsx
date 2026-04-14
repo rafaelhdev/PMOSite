@@ -23,14 +23,14 @@ export default function CollaboratorProfile() {
 
   return (
     <div className="max-w-2xl mx-auto">
-      <button onClick={() => navigate(-1)} className="text-sm text-primary-500 hover:text-primary-700 mb-4 flex items-center gap-1">
+      <button onClick={() => navigate(-1)} className="text-sm text-primary-500 hover:text-primary-600 mb-4 flex items-center gap-1">
         ← Voltar
       </button>
 
       {/* Profile card */}
-      <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 mb-6">
+      <div className="card mb-6">
         <div className="flex items-center gap-4">
-          <div className="w-16 h-16 rounded-full bg-primary-600 text-white flex items-center justify-center font-bold text-xl flex-shrink-0">
+          <div className="w-16 h-16 rounded-full bg-neutral-900 text-white flex items-center justify-center font-bold text-xl flex-shrink-0">
             {getInitials(collaborator.name)}
           </div>
           <div>
@@ -45,7 +45,7 @@ export default function CollaboratorProfile() {
       {/* Vacation history */}
       <h2 className="text-lg font-semibold text-primary-600 mb-3">Histórico de Férias</h2>
       {myVacations.length === 0 ? (
-        <div className="bg-white rounded-xl border border-gray-200 p-6 text-center text-gray-400 text-sm mb-6">
+        <div className="card text-center text-gray-400 text-sm mb-6">
           Nenhuma férias registrada.
         </div>
       ) : (
@@ -53,7 +53,7 @@ export default function CollaboratorProfile() {
           {myVacations.map(v => {
             const backup = collaborators.find(c => c.id === v.backupId)
             return (
-              <div key={v.id} className="bg-white rounded-xl border border-gray-200 shadow-sm p-4">
+              <div key={v.id} className="card">
                 <div className="flex items-start justify-between gap-2 flex-wrap">
                   <div>
                     <p className="font-medium text-gray-800 text-sm">
@@ -83,11 +83,11 @@ export default function CollaboratorProfile() {
             {backupVacations.map(v => {
               const owner = collaborators.find(c => c.id === v.collaboratorId)
               return (
-                <div key={v.id} className="bg-blue-50 border border-blue-200 rounded-xl p-4">
-                  <p className="text-sm font-medium text-blue-800">
+                <div key={v.id} className="bg-secondary-50 border border-secondary-300 rounded-xl p-4">
+                  <p className="text-sm font-medium text-secondary-600">
                     Backup de <strong>{owner?.name}</strong>
                   </p>
-                  <p className="text-xs text-blue-600 mt-0.5">
+                  <p className="text-xs text-secondary-500 mt-0.5">
                     {formatDate(v.startDate)} → {formatDate(v.endDate)}
                   </p>
                 </div>

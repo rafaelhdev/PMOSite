@@ -61,7 +61,7 @@ export default function Calendar() {
                     const c = collaborators.find(col => col.id === v.collaboratorId)
                     return (
                       <div key={v.id} className="flex items-center gap-1.5">
-                        <div className="w-2 h-2 rounded-full bg-primary-500 flex-shrink-0" />
+                        <div className="w-2 h-2 rounded-full bg-primary-600 flex-shrink-0" />
                         <span className="text-xs text-gray-600 truncate">{c?.name.split(' ')[0]}</span>
                       </div>
                     )

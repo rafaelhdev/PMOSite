@@ -17,10 +17,7 @@ export default function CollaboratorList() {
     <div>
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-bold text-primary-600">Colaboradores</h1>
-        <Link
-          to="/collaborators/new"
-          className="bg-primary-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-primary-700 transition-colors"
-        >
+        <Link to="/collaborators/new" className="btn-primary">
           + Novo Colaborador
         </Link>
       </div>
@@ -32,10 +29,10 @@ export default function CollaboratorList() {
             <Link
               key={c.id}
               to={`/collaborators/${c.id}`}
-              className="bg-white rounded-xl border border-gray-200 p-5 shadow-sm hover:shadow-md hover:border-primary-300 transition-all"
+              className="bg-white rounded-xl border border-gray-200 p-5 shadow-sm hover:shadow-md hover:border-primary-400 transition-all"
             >
               <div className="flex items-center gap-3 mb-3">
-                <div className="w-10 h-10 rounded-full bg-primary-600 text-white flex items-center justify-center font-bold text-sm flex-shrink-0">
+                <div className="w-10 h-10 rounded-full bg-neutral-900 text-white flex items-center justify-center font-bold text-sm flex-shrink-0">
                   {getInitials(c.name)}
                 </div>
                 <div className="min-w-0">
@@ -46,11 +43,11 @@ export default function CollaboratorList() {
               <p className="text-xs text-gray-400 mb-1">{c.email}</p>
               <p className="text-xs text-gray-400 mb-3">{c.github}</p>
               {active ? (
-                <span className="inline-block bg-yellow-100 text-yellow-800 text-xs px-2 py-0.5 rounded-full font-medium">
+                <span className="inline-block bg-warning-50 text-warning-700 border border-warning-500 text-xs px-2 py-0.5 rounded-full font-medium">
                   De férias
                 </span>
               ) : (
-                <span className="inline-block bg-green-100 text-green-800 text-xs px-2 py-0.5 rounded-full font-medium">
+                <span className="inline-block bg-success-50 text-success-700 border border-success-500 text-xs px-2 py-0.5 rounded-full font-medium">
                   Disponível
                 </span>
               )}
