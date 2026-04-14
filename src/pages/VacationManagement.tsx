@@ -223,19 +223,19 @@ export default function VacationManagement() {
                   {v.status === 'intention' && (
                     confirmDeleteId === v.id ? (
                       <div className="flex items-center gap-2">
-                        <span className="text-xs text-danger-600 font-medium">Excluir registro?</span>
+                        <span className="text-xs text-red-600 font-medium">Excluir registro?</span>
                         <button
                           onClick={() => { deleteVacation(v.id); setConfirmDeleteId(null) }}
-                          className="bg-danger-600 text-white px-3 py-1 rounded text-xs hover:bg-danger-700 transition-colors"
+                          className="bg-red-600 text-white px-3 py-1 rounded text-xs hover:bg-red-700 transition-colors"
                         >
                           Sim
                         </button>
-                        <button onClick={() => setConfirmDeleteId(null)} className="btn-secondary text-xs px-3 py-1">
+                        <button onClick={() => setConfirmDeleteId(null)} className="border border-gray-300 text-gray-600 px-3 py-1 rounded text-xs hover:bg-gray-50 transition-colors">
                           Não
                         </button>
                       </div>
                     ) : (
-                      <button onClick={() => setConfirmDeleteId(v.id)} className="btn-danger text-xs px-3 py-1.5">
+                      <button onClick={() => setConfirmDeleteId(v.id)} className="border border-red-300 text-red-600 px-3 py-1.5 rounded-lg text-xs font-medium hover:bg-red-50 transition-colors">
                         Excluir
                       </button>
                     )

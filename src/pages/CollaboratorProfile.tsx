@@ -36,16 +36,16 @@ export default function CollaboratorProfile() {
         </button>
 
         {!confirmDelete ? (
-          <button onClick={() => setConfirmDelete(true)} className="btn-danger text-xs px-3 py-1.5">
+          <button onClick={() => setConfirmDelete(true)} className="border border-red-300 text-red-600 px-3 py-1.5 rounded-lg text-xs font-medium hover:bg-red-50 transition-colors">
             Excluir colaborador
           </button>
         ) : (
           <div className="flex items-center gap-2">
-            <span className="text-xs text-danger-600 font-medium">Confirmar exclusão?</span>
-            <button onClick={handleDeleteCollaborator} className="bg-danger-600 text-white px-3 py-1 rounded text-xs hover:bg-danger-700 transition-colors">
+            <span className="text-xs text-red-600 font-medium">Confirmar exclusão?</span>
+            <button onClick={handleDeleteCollaborator} className="bg-red-600 text-white px-3 py-1 rounded text-xs hover:bg-red-700 transition-colors">
               Sim, excluir
             </button>
-            <button onClick={() => setConfirmDelete(false)} className="btn-secondary text-xs px-3 py-1">
+            <button onClick={() => setConfirmDelete(false)} className="border border-gray-300 text-gray-600 px-3 py-1 rounded text-xs hover:bg-gray-50 transition-colors">
               Cancelar
             </button>
           </div>
