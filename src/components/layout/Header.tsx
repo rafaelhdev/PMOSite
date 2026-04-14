@@ -6,6 +6,7 @@ const NAV_LINKS = [
   { to: '/', label: 'Dashboard' },
   { to: '/calendar', label: 'Calendário' },
   { to: '/collaborators', label: 'Colaboradores' },
+  { to: '/vacations', label: 'Férias' },
 ]
 
 export default function Header() {
@@ -14,13 +15,15 @@ export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false)
 
   return (
-    <header className="bg-primary-600 text-white shadow-md">
+    <header className="bg-neutral-900 text-white shadow-md">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-2 font-bold text-xl tracking-tight">
-            <span className="bg-white text-primary-600 rounded px-2 py-0.5 text-sm font-extrabold">PMO</span>
-            <span>Férias</span>
+          <Link to="/" className="flex items-center gap-3">
+            <img src="/sidi-logo.svg" alt="SiDi" className="h-8 w-auto" />
+            <span className="font-bold text-lg tracking-tight text-white">
+              PMO <span className="text-primary-500">Férias</span>
+            </span>
           </Link>
 
           {/* Desktop nav */}
@@ -29,8 +32,10 @@ export default function Header() {
               <Link
                 key={link.to}
                 to={link.to}
-                className={`text-sm font-medium transition-colors hover:text-primary-100 ${
-                  location.pathname === link.to ? 'border-b-2 border-white pb-0.5' : 'text-primary-100'
+                className={`text-sm font-medium transition-colors hover:text-primary-500 ${
+                  location.pathname === link.to
+                    ? 'text-primary-500 border-b-2 border-primary-500 pb-0.5'
+                    : 'text-neutral-300'
                 }`}
               >
                 {link.label}
@@ -40,11 +45,11 @@ export default function Header() {
 
           {/* User selector */}
           <div className="hidden md:flex items-center gap-3">
-            <span className="text-primary-200 text-xs">Logado como:</span>
+            <span className="text-neutral-400 text-xs">Logado como:</span>
             <select
               value={currentCollaboratorId}
               onChange={e => setCurrentCollaborator(e.target.value)}
-              className="bg-primary-700 text-white text-sm rounded px-2 py-1 border border-primary-400 focus:outline-none"
+              className="bg-neutral-800 text-white text-sm rounded px-2 py-1 border border-neutral-600 focus:outline-none focus:border-primary-500"
             >
               {collaborators.map(c => (
                 <option key={c.id} value={c.id}>{c.name}</option>
@@ -54,7 +59,7 @@ export default function Header() {
 
           {/* Mobile menu button */}
           <button
-            className="md:hidden p-2 rounded focus:outline-none focus:ring-2 focus:ring-white"
+            className="md:hidden p-2 rounded focus:outline-none focus:ring-2 focus:ring-primary-500"
             onClick={() => setMenuOpen(!menuOpen)}
             aria-label="Menu"
           >
@@ -67,25 +72,25 @@ export default function Header() {
 
       {/* Mobile menu */}
       {menuOpen && (
-        <div className="md:hidden bg-primary-700 px-4 pb-4 space-y-2">
+        <div className="md:hidden bg-neutral-800 px-4 pb-4 space-y-2">
           {NAV_LINKS.map(link => (
             <Link
               key={link.to}
               to={link.to}
               onClick={() => setMenuOpen(false)}
               className={`block py-2 text-sm font-medium ${
-                location.pathname === link.to ? 'text-white font-bold' : 'text-primary-100'
+                location.pathname === link.to ? 'text-primary-500 font-bold' : 'text-neutral-300'
               }`}
             >
               {link.label}
             </Link>
           ))}
-          <div className="pt-2 border-t border-primary-500">
-            <span className="text-primary-300 text-xs block mb-1">Logado como:</span>
+          <div className="pt-2 border-t border-neutral-700">
+            <span className="text-neutral-400 text-xs block mb-1">Logado como:</span>
             <select
               value={currentCollaboratorId}
               onChange={e => { setCurrentCollaborator(e.target.value); setMenuOpen(false) }}
-              className="bg-primary-800 text-white text-sm rounded px-2 py-1 border border-primary-400 w-full"
+              className="bg-neutral-900 text-white text-sm rounded px-2 py-1 border border-neutral-600 w-full"
             >
               {collaborators.map(c => (
                 <option key={c.id} value={c.id}>{c.name}</option>
