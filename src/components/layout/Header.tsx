@@ -6,6 +6,7 @@ const NAV_LINKS = [
   { to: '/', label: 'Dashboard' },
   { to: '/calendar', label: 'Calendário' },
   { to: '/collaborators', label: 'Colaboradores' },
+  { to: '/vacations', label: 'Férias' },
 ]
 
 export default function Header() {
