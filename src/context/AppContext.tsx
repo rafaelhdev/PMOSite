@@ -39,6 +39,8 @@ interface AppContextType {
   addCollaborator: (c: Omit<Collaborator, 'id'>) => void
   addVacation: (v: Omit<Vacation, 'id' | 'createdAt'>) => void
   updateVacation: (id: string, patch: Partial<Vacation>) => void
+  deleteCollaborator: (id: string) => void
+  deleteVacation: (id: string) => void
   setCurrentCollaborator: (id: string) => void
 }
 
@@ -61,6 +63,15 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setVacations(prev => prev.map(v => v.id === id ? { ...v, ...patch } : v))
   }
 
+  function deleteCollaborator(id: string) {
+    setCollaborators(prev => prev.filter(c => c.id !== id))
+    setVacations(prev => prev.filter(v => v.collaboratorId !== id))
+  }
+
+  function deleteVacation(id: string) {
+    setVacations(prev => prev.filter(v => v.id !== id))
+  }
+
   return (
     <AppContext.Provider value={{
       collaborators,
@@ -69,6 +80,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
       addCollaborator,
       addVacation,
       updateVacation,
+      deleteCollaborator,
+      deleteVacation,
       setCurrentCollaborator: setCurrentCollaboratorId,
     }}>
       {children}

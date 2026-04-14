@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useApp } from '../context/AppContext'
 import { VacationStatusBadge, FluigStatusBadge } from '../components/ui/StatusBadge'
@@ -13,7 +14,8 @@ function formatDate(d: string) {
 export default function CollaboratorProfile() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
-  const { collaborators, vacations } = useApp()
+  const { collaborators, vacations, deleteCollaborator } = useApp()
+  const [confirmDelete, setConfirmDelete] = useState(false)
 
   const collaborator = collaborators.find(c => c.id === id)
   if (!collaborator) return <div className="text-gray-500">Colaborador não encontrado.</div>
@@ -21,16 +23,39 @@ export default function CollaboratorProfile() {
   const myVacations = vacations.filter(v => v.collaboratorId === id)
   const backupVacations = vacations.filter(v => v.backupId === id)
 
+  function handleDeleteCollaborator() {
+    deleteCollaborator(collaborator.id)
+    navigate('/collaborators')
+  }
+
   return (
     <div className="max-w-2xl mx-auto">
-      <button onClick={() => navigate(-1)} className="text-sm text-primary-500 hover:text-primary-700 mb-4 flex items-center gap-1">
-        ← Voltar
-      </button>
+      <div className="flex items-center justify-between mb-4">
+        <button onClick={() => navigate(-1)} className="text-sm text-primary-500 hover:text-primary-600 flex items-center gap-1">
+          ← Voltar
+        </button>
+
+        {!confirmDelete ? (
+          <button onClick={() => setConfirmDelete(true)} className="btn-danger text-xs px-3 py-1.5">
+            Excluir colaborador
+          </button>
+        ) : (
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-danger-600 font-medium">Confirmar exclusão?</span>
+            <button onClick={handleDeleteCollaborator} className="bg-danger-600 text-white px-3 py-1 rounded text-xs hover:bg-danger-700 transition-colors">
+              Sim, excluir
+            </button>
+            <button onClick={() => setConfirmDelete(false)} className="btn-secondary text-xs px-3 py-1">
+              Cancelar
+            </button>
+          </div>
+        )}
+      </div>
 
       {/* Profile card */}
-      <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 mb-6">
+      <div className="card mb-6">
         <div className="flex items-center gap-4">
-          <div className="w-16 h-16 rounded-full bg-primary-600 text-white flex items-center justify-center font-bold text-xl flex-shrink-0">
+          <div className="w-16 h-16 rounded-full bg-neutral-900 text-white flex items-center justify-center font-bold text-xl flex-shrink-0">
             {getInitials(collaborator.name)}
           </div>
           <div>
@@ -45,7 +70,7 @@ export default function CollaboratorProfile() {
       {/* Vacation history */}
       <h2 className="text-lg font-semibold text-primary-600 mb-3">Histórico de Férias</h2>
       {myVacations.length === 0 ? (
-        <div className="bg-white rounded-xl border border-gray-200 p-6 text-center text-gray-400 text-sm mb-6">
+        <div className="card text-center text-gray-400 text-sm mb-6">
           Nenhuma férias registrada.
         </div>
       ) : (
@@ -53,7 +78,7 @@ export default function CollaboratorProfile() {
           {myVacations.map(v => {
             const backup = collaborators.find(c => c.id === v.backupId)
             return (
-              <div key={v.id} className="bg-white rounded-xl border border-gray-200 shadow-sm p-4">
+              <div key={v.id} className="card">
                 <div className="flex items-start justify-between gap-2 flex-wrap">
                   <div>
                     <p className="font-medium text-gray-800 text-sm">
@@ -83,11 +108,11 @@ export default function CollaboratorProfile() {
             {backupVacations.map(v => {
               const owner = collaborators.find(c => c.id === v.collaboratorId)
               return (
-                <div key={v.id} className="bg-blue-50 border border-blue-200 rounded-xl p-4">
-                  <p className="text-sm font-medium text-blue-800">
+                <div key={v.id} className="bg-secondary-50 border border-secondary-300 rounded-xl p-4">
+                  <p className="text-sm font-medium text-secondary-600">
                     Backup de <strong>{owner?.name}</strong>
                   </p>
-                  <p className="text-xs text-blue-600 mt-0.5">
+                  <p className="text-xs text-secondary-500 mt-0.5">
                     {formatDate(v.startDate)} → {formatDate(v.endDate)}
                   </p>
                 </div>

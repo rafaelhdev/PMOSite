@@ -12,16 +12,16 @@ function datesOverlap(s1: string, e1: string, s2: string, e2: string) {
 }
 
 export default function VacationManagement() {
-  const { collaborators, vacations, currentCollaboratorId, addVacation, updateVacation } = useApp()
+  const { collaborators, vacations, currentCollaboratorId, addVacation, updateVacation, deleteVacation } = useApp()
   const currentCollab = collaborators.find(c => c.id === currentCollaboratorId)!
 
   const [showForm, setShowForm] = useState(false)
   const [form, setForm] = useState({ startDate: '', endDate: '', backupId: '' })
   const [conflict, setConflict] = useState<string | null>(null)
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null)
 
   const myVacations = vacations.filter(v => v.collaboratorId === currentCollaboratorId)
 
-  // Backup notifications: vacations where I'm the backup
   const backupNotifications = vacations.filter(v =>
     v.backupId === currentCollaboratorId && v.status !== 'denied'
   )
@@ -34,7 +34,6 @@ export default function VacationManagement() {
       return
     }
 
-    // Conflict detection: check other collaborators in same period
     const conflicts = vacations.filter(v =>
       v.collaboratorId !== currentCollaboratorId &&
       v.status !== 'denied' &&
@@ -88,10 +87,7 @@ export default function VacationManagement() {
           <h1 className="text-2xl font-bold text-primary-600">Minhas Férias</h1>
           <p className="text-sm text-gray-500 mt-0.5">{currentCollab?.name}</p>
         </div>
-        <button
-          onClick={() => setShowForm(!showForm)}
-          className="bg-primary-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-primary-700 transition-colors"
-        >
+        <button onClick={() => setShowForm(!showForm)} className="btn-primary">
           {showForm ? 'Cancelar' : '+ Registrar Intenção'}
         </button>
       </div>
@@ -102,13 +98,13 @@ export default function VacationManagement() {
           {backupNotifications.map(v => {
             const owner = collaborators.find(c => c.id === v.collaboratorId)
             return (
-              <div key={v.id} className="bg-blue-50 border border-blue-300 rounded-xl p-4 flex items-start gap-3">
-                <span className="text-blue-500 text-lg">🔔</span>
+              <div key={v.id} className="bg-secondary-50 border border-secondary-300 rounded-xl p-4 flex items-start gap-3">
+                <span className="text-secondary-500 text-lg">🔔</span>
                 <div>
-                  <p className="text-sm font-medium text-blue-800">
+                  <p className="text-sm font-medium text-secondary-600">
                     Você é backup de <strong>{owner?.name}</strong>
                   </p>
-                  <p className="text-xs text-blue-600 mt-0.5">
+                  <p className="text-xs text-secondary-500 mt-0.5">
                     {formatDate(v.startDate)} → {formatDate(v.endDate)}
                   </p>
                 </div>
@@ -120,38 +116,38 @@ export default function VacationManagement() {
 
       {/* Vacation intention form */}
       {showForm && (
-        <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 mb-6">
+        <div className="card mb-6">
           <h2 className="text-base font-semibold text-gray-800 mb-4">Nova Intenção de Férias</h2>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Data de início *</label>
+                <label className="label">Data de início *</label>
                 <input
                   type="date"
                   required
                   value={form.startDate}
                   onChange={e => setForm({ ...form, startDate: e.target.value })}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+                  className="input"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Data de fim *</label>
+                <label className="label">Data de fim *</label>
                 <input
                   type="date"
                   required
                   value={form.endDate}
                   onChange={e => setForm({ ...form, endDate: e.target.value })}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+                  className="input"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Backup</label>
+              <label className="label">Backup</label>
               <select
                 value={form.backupId}
                 onChange={e => setForm({ ...form, backupId: e.target.value })}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+                className="input"
               >
                 <option value="">Selecione um backup (opcional)</option>
                 {collaborators.filter(c => c.id !== currentCollaboratorId).map(c => (
@@ -161,13 +157,13 @@ export default function VacationManagement() {
             </div>
 
             {conflict && (
-              <div className="bg-yellow-50 border border-yellow-300 rounded-lg p-3 text-sm text-yellow-800">
+              <div className="alert-warning">
                 ⚠️ {conflict}
                 <div className="mt-2 flex gap-2">
-                  <button type="button" onClick={submitVacation} className="bg-yellow-600 text-white px-3 py-1 rounded text-xs hover:bg-yellow-700">
+                  <button type="button" onClick={submitVacation} className="bg-warning-600 text-white px-3 py-1 rounded text-xs hover:bg-warning-700 transition-colors">
                     Confirmar mesmo assim
                   </button>
-                  <button type="button" onClick={() => setConflict(null)} className="border border-yellow-400 text-yellow-700 px-3 py-1 rounded text-xs hover:bg-yellow-100">
+                  <button type="button" onClick={() => setConflict(null)} className="border border-warning-500 text-warning-700 px-3 py-1 rounded text-xs hover:bg-warning-50 transition-colors">
                     Alterar datas
                   </button>
                 </div>
@@ -175,7 +171,7 @@ export default function VacationManagement() {
             )}
 
             {!conflict && (
-              <button type="submit" className="w-full bg-primary-600 text-white py-2 rounded-lg text-sm font-medium hover:bg-primary-700 transition-colors">
+              <button type="submit" className="btn-primary w-full">
                 Registrar Intenção
               </button>
             )}
@@ -185,7 +181,7 @@ export default function VacationManagement() {
 
       {/* My vacations list */}
       {myVacations.length === 0 ? (
-        <div className="bg-white rounded-xl border border-gray-200 p-8 text-center text-gray-400 text-sm">
+        <div className="card text-center text-gray-400 text-sm">
           Nenhuma férias registrada. Clique em "+ Registrar Intenção" para começar.
         </div>
       ) : (
@@ -193,8 +189,7 @@ export default function VacationManagement() {
           {myVacations.map(v => {
             const backup = collaborators.find(c => c.id === v.backupId)
             return (
-              <div key={v.id} className="bg-white rounded-xl border border-gray-200 shadow-sm p-5">
-                {/* Header */}
+              <div key={v.id} className="card">
                 <div className="flex items-start justify-between gap-3 mb-3 flex-wrap">
                   <div>
                     <p className="font-semibold text-gray-800">
@@ -212,54 +207,54 @@ export default function VacationManagement() {
                   <p className="text-xs text-gray-400 mb-3">Protocolo Fluig: {v.fluigProtocol}</p>
                 )}
 
-                {/* Actions */}
                 <div className="flex flex-wrap gap-2 mt-3">
-                  {/* Confirm approval — available when status is 'approved' */}
                   {v.status === 'approved' && (
-                    <button
-                      onClick={() => handleConfirmApproval(v.id)}
-                      className="bg-green-600 text-white px-3 py-1.5 rounded-lg text-xs font-medium hover:bg-green-700 transition-colors"
-                    >
+                    <button onClick={() => handleConfirmApproval(v.id)} className="bg-success-600 text-white px-3 py-1.5 rounded-lg text-xs font-medium hover:bg-success-700 transition-colors">
                       ✓ Confirmar Aprovação
                     </button>
                   )}
 
-                  {/* Deny own intention */}
-                  {(v.status === 'intention') && (
-                    <button
-                      onClick={() => handleDeny(v.id)}
-                      className="border border-red-300 text-red-600 px-3 py-1.5 rounded-lg text-xs font-medium hover:bg-red-50 transition-colors"
-                    >
+                  {(v.status === 'approved' || v.status === 'confirmed') && (
+                    <button onClick={() => handleDeny(v.id)} className="btn-danger text-xs px-3 py-1.5">
                       Cancelar
                     </button>
                   )}
 
-                  {/* Approve (manager action — simulated) */}
                   {v.status === 'intention' && (
-                    <button
-                      onClick={() => updateVacation(v.id, { status: 'approved' as VacationStatus })}
-                      className="bg-primary-600 text-white px-3 py-1.5 rounded-lg text-xs font-medium hover:bg-primary-700 transition-colors"
-                    >
+                    confirmDeleteId === v.id ? (
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs text-danger-600 font-medium">Excluir registro?</span>
+                        <button
+                          onClick={() => { deleteVacation(v.id); setConfirmDeleteId(null) }}
+                          className="bg-danger-600 text-white px-3 py-1 rounded text-xs hover:bg-danger-700 transition-colors"
+                        >
+                          Sim
+                        </button>
+                        <button onClick={() => setConfirmDeleteId(null)} className="btn-secondary text-xs px-3 py-1">
+                          Não
+                        </button>
+                      </div>
+                    ) : (
+                      <button onClick={() => setConfirmDeleteId(v.id)} className="btn-danger text-xs px-3 py-1.5">
+                        Excluir
+                      </button>
+                    )
+                  )}
+
+                  {v.status === 'intention' && (
+                    <button onClick={() => updateVacation(v.id, { status: 'approved' as VacationStatus })} className="btn-primary text-xs px-3 py-1.5">
                       Aprovar (gestor)
                     </button>
                   )}
 
-                  {/* Open Fluig request */}
                   {v.fluigStatus === 'not_sent' && v.status !== 'denied' && (
-                    <button
-                      onClick={() => handleOpenFluig(v)}
-                      className="bg-orange-500 text-white px-3 py-1.5 rounded-lg text-xs font-medium hover:bg-orange-600 transition-colors"
-                    >
+                    <button onClick={() => handleOpenFluig(v)} className="bg-warning-600 text-white px-3 py-1.5 rounded-lg text-xs font-medium hover:bg-warning-700 transition-colors">
                       Abrir no Fluig
                     </button>
                   )}
 
-                  {/* Simulate Fluig approval */}
                   {v.fluigStatus === 'pending' && (
-                    <button
-                      onClick={() => handleFluigApprove(v.id)}
-                      className="border border-orange-400 text-orange-700 px-3 py-1.5 rounded-lg text-xs font-medium hover:bg-orange-50 transition-colors"
-                    >
+                    <button onClick={() => handleFluigApprove(v.id)} className="border border-warning-500 text-warning-700 px-3 py-1.5 rounded-lg text-xs font-medium hover:bg-warning-50 transition-colors">
                       Fluig: Simular Aprovação
                     </button>
                   )}
