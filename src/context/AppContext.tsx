@@ -1,63 +1,115 @@
-import { createContext, useContext, useState, type ReactNode } from 'react'
+import { createContext, useContext, useState, useEffect, type ReactNode } from 'react'
 import type { Collaborator, Vacation } from '../types'
-
-const INITIAL_COLLABORATORS: Collaborator[] = [
-  {
-    id: '1',
-    name: 'Rafael Silva',
-    role: 'Desenvolvedor Frontend',
-    email: 'rafael.silva@sidi.org.br',
-    github: '@rafaelhdev',
-  },
-  {
-    id: '2',
-    name: 'Rebeca Valgueiro',
-    role: 'Desenvolvedora Frontend',
-    email: 'rv.teixeira@sidi.org.br',
-    github: '@rebecavalgueiro',
-  },
-]
-
-const INITIAL_VACATIONS: Vacation[] = [
-  {
-    id: 'v1',
-    collaboratorId: '2',
-    startDate: '2026-02-10',
-    endDate: '2026-02-21',
-    status: 'approved',
-    backupId: '1',
-    fluigStatus: 'approved',
-    fluigProtocol: 'FLG-2026-00142',
-    createdAt: '2026-01-15',
-  },
-]
+import { supabase } from '../lib/supabase'
 
 interface AppContextType {
   collaborators: Collaborator[]
   vacations: Vacation[]
   currentCollaboratorId: string
-  addCollaborator: (c: Omit<Collaborator, 'id'>) => void
-  addVacation: (v: Omit<Vacation, 'id' | 'createdAt'>) => void
-  updateVacation: (id: string, patch: Partial<Vacation>) => void
+  loading: boolean
+  addCollaborator: (c: Omit<Collaborator, 'id'>) => Promise<void>
+  addVacation: (v: Omit<Vacation, 'id' | 'createdAt'>) => Promise<void>
+  updateVacation: (id: string, patch: Partial<Vacation>) => Promise<void>
   setCurrentCollaborator: (id: string) => void
 }
 
 const AppContext = createContext<AppContextType | null>(null)
 
 export function AppProvider({ children }: { children: ReactNode }) {
-  const [collaborators, setCollaborators] = useState<Collaborator[]>(INITIAL_COLLABORATORS)
-  const [vacations, setVacations] = useState<Vacation[]>(INITIAL_VACATIONS)
-  const [currentCollaboratorId, setCurrentCollaboratorId] = useState('1')
+  const [collaborators, setCollaborators] = useState<Collaborator[]>([])
+  const [vacations, setVacations] = useState<Vacation[]>([])
+  const [currentCollaboratorId, setCurrentCollaboratorId] = useState('')
+  const [loading, setLoading] = useState(true)
 
-  function addCollaborator(c: Omit<Collaborator, 'id'>) {
-    setCollaborators(prev => [...prev, { ...c, id: String(Date.now()) }])
+  useEffect(() => {
+    fetchData()
+  }, [])
+
+  async function fetchData() {
+    setLoading(true)
+    try {
+      const [{ data: collabs }, { data: vacs }] = await Promise.all([
+        supabase.from('collaborators').select('*').order('name'),
+        supabase.from('vacations').select('*').order('created_at', { ascending: false }),
+      ])
+
+      if (collabs) {
+        const mapped: Collaborator[] = collabs.map(c => ({
+          id: c.id,
+          name: c.name,
+          role: c.role,
+          email: c.email,
+          github: c.github,
+          avatarUrl: c.avatar_url ?? undefined,
+        }))
+        setCollaborators(mapped)
+        if (mapped.length > 0 && !currentCollaboratorId) {
+          setCurrentCollaboratorId(mapped[0].id)
+        }
+      }
+
+      if (vacs) {
+        const mapped: Vacation[] = vacs.map(v => ({
+          id: v.id,
+          collaboratorId: v.collaborator_id,
+          startDate: v.start_date,
+          endDate: v.end_date,
+          status: v.status,
+          backupId: v.backup_id ?? undefined,
+          fluigStatus: v.fluig_status,
+          fluigProtocol: v.fluig_protocol ?? undefined,
+          createdAt: v.created_at,
+        }))
+        setVacations(mapped)
+      }
+    } finally {
+      setLoading(false)
+    }
   }
 
-  function addVacation(v: Omit<Vacation, 'id' | 'createdAt'>) {
-    setVacations(prev => [...prev, { ...v, id: String(Date.now()), createdAt: new Date().toISOString().slice(0, 10) }])
+  async function addCollaborator(c: Omit<Collaborator, 'id'>) {
+    const { data, error } = await supabase.from('collaborators').insert({
+      name: c.name,
+      role: c.role,
+      email: c.email,
+      github: c.github,
+      avatar_url: c.avatarUrl ?? null,
+    }).select().single()
+
+    if (error) throw error
+    setCollaborators(prev => [...prev, { ...c, id: data.id }])
   }
 
-  function updateVacation(id: string, patch: Partial<Vacation>) {
+  async function addVacation(v: Omit<Vacation, 'id' | 'createdAt'>) {
+    const { data, error } = await supabase.from('vacations').insert({
+      collaborator_id: v.collaboratorId,
+      start_date: v.startDate,
+      end_date: v.endDate,
+      status: v.status,
+      backup_id: v.backupId ?? null,
+      fluig_status: v.fluigStatus,
+      fluig_protocol: v.fluigProtocol ?? null,
+    }).select().single()
+
+    if (error) throw error
+    setVacations(prev => [...prev, {
+      ...v,
+      id: data.id,
+      createdAt: data.created_at,
+    }])
+  }
+
+  async function updateVacation(id: string, patch: Partial<Vacation>) {
+    const dbPatch: Record<string, unknown> = {}
+    if (patch.status !== undefined) dbPatch.status = patch.status
+    if (patch.backupId !== undefined) dbPatch.backup_id = patch.backupId
+    if (patch.fluigStatus !== undefined) dbPatch.fluig_status = patch.fluigStatus
+    if (patch.fluigProtocol !== undefined) dbPatch.fluig_protocol = patch.fluigProtocol
+    if (patch.startDate !== undefined) dbPatch.start_date = patch.startDate
+    if (patch.endDate !== undefined) dbPatch.end_date = patch.endDate
+
+    const { error } = await supabase.from('vacations').update(dbPatch).eq('id', id)
+    if (error) throw error
     setVacations(prev => prev.map(v => v.id === id ? { ...v, ...patch } : v))
   }
 
@@ -66,6 +118,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       collaborators,
       vacations,
       currentCollaboratorId,
+      loading,
       addCollaborator,
       addVacation,
       updateVacation,
