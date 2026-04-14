@@ -35,6 +35,25 @@ rafael.silva / rv.teixeira → dev → main
 - Ao abrir um PR, vincule-o à issue correspondente usando `Closes #<número>` na descrição
 - O assignee da tarefa no board deve refletir quem está responsável pela revisão ou execução
 
+## Configuração do ambiente local
+
+Após clonar o repositório, execute o comando abaixo para instalar o hook de validação de commits:
+
+```bash
+cp .github/hooks/commit-msg .git/hooks/commit-msg && chmod +x .git/hooks/commit-msg
+```
+
+## Padrão de commits
+
+Todo commit deve referenciar a issue associada usando `#número`:
+
+```
+Add vacation calendar feature #4
+Fix approval flow bug #6
+```
+
+Commits sem referência a uma issue serão rejeitados localmente pelo hook e bloqueados no PR pelo GitHub Action.
+
 ## Revisão de código
 
 - As revisões são cruzadas: **rafael.silva revisa rv.teixeira** e vice-versa
