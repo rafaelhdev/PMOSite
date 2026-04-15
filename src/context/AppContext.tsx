@@ -2,6 +2,23 @@ import { createContext, useContext, useState, useEffect, type ReactNode } from '
 import type { Collaborator, Vacation } from '../types'
 import { supabase } from '../lib/supabase'
 
+const SUPABASE_CONFIGURED = !!(
+  import.meta.env.VITE_SUPABASE_URL && import.meta.env.VITE_SUPABASE_ANON_KEY
+)
+
+const FALLBACK_COLLABORATORS: Collaborator[] = [
+  { id: '1', name: 'Rafael Silva', role: 'Desenvolvedor Frontend', email: 'rafael.silva@sidi.org.br', github: '@rafaelhdev' },
+  { id: '2', name: 'Rebeca Valgueiro', role: 'Desenvolvedora Frontend', email: 'rv.teixeira@sidi.org.br', github: '@rebecavalgueiro' },
+]
+
+const FALLBACK_VACATIONS: Vacation[] = [
+  {
+    id: 'v1', collaboratorId: '2', startDate: '2026-02-10', endDate: '2026-02-21',
+    status: 'approved', backupId: '1', fluigStatus: 'approved',
+    fluigProtocol: 'FLG-2026-00142', createdAt: '2026-01-15',
+  },
+]
+
 interface AppContextType {
   collaborators: Collaborator[]
   vacations: Vacation[]
@@ -18,12 +35,19 @@ interface AppContextType {
 const AppContext = createContext<AppContextType | null>(null)
 
 export function AppProvider({ children }: { children: ReactNode }) {
-  const [collaborators, setCollaborators] = useState<Collaborator[]>([])
-  const [vacations, setVacations] = useState<Vacation[]>([])
-  const [currentCollaboratorId, setCurrentCollaboratorId] = useState('')
-  const [loading, setLoading] = useState(true)
+  const [collaborators, setCollaborators] = useState<Collaborator[]>(
+    SUPABASE_CONFIGURED ? [] : FALLBACK_COLLABORATORS
+  )
+  const [vacations, setVacations] = useState<Vacation[]>(
+    SUPABASE_CONFIGURED ? [] : FALLBACK_VACATIONS
+  )
+  const [currentCollaboratorId, setCurrentCollaboratorId] = useState(
+    SUPABASE_CONFIGURED ? '' : '1'
+  )
+  const [loading, setLoading] = useState(SUPABASE_CONFIGURED)
 
   useEffect(() => {
+    if (!SUPABASE_CONFIGURED) return
     fetchData()
   }, [])
 
@@ -72,38 +96,37 @@ export function AppProvider({ children }: { children: ReactNode }) {
   }
 
   async function addCollaborator(c: Omit<Collaborator, 'id'>) {
+    if (!SUPABASE_CONFIGURED) {
+      setCollaborators(prev => [...prev, { ...c, id: String(Date.now()) }])
+      return
+    }
     const { data, error } = await supabase.from('collaborators').insert({
-      name: c.name,
-      role: c.role,
-      email: c.email,
-      github: c.github,
+      name: c.name, role: c.role, email: c.email, github: c.github,
       avatar_url: c.avatarUrl ?? null,
     }).select().single()
-
     if (error) throw error
     setCollaborators(prev => [...prev, { ...c, id: data.id }])
   }
 
   async function addVacation(v: Omit<Vacation, 'id' | 'createdAt'>) {
+    if (!SUPABASE_CONFIGURED) {
+      setVacations(prev => [...prev, { ...v, id: String(Date.now()), createdAt: new Date().toISOString().slice(0, 10) }])
+      return
+    }
     const { data, error } = await supabase.from('vacations').insert({
-      collaborator_id: v.collaboratorId,
-      start_date: v.startDate,
-      end_date: v.endDate,
-      status: v.status,
-      backup_id: v.backupId ?? null,
-      fluig_status: v.fluigStatus,
-      fluig_protocol: v.fluigProtocol ?? null,
+      collaborator_id: v.collaboratorId, start_date: v.startDate, end_date: v.endDate,
+      status: v.status, backup_id: v.backupId ?? null,
+      fluig_status: v.fluigStatus, fluig_protocol: v.fluigProtocol ?? null,
     }).select().single()
-
     if (error) throw error
-    setVacations(prev => [...prev, {
-      ...v,
-      id: data.id,
-      createdAt: data.created_at,
-    }])
+    setVacations(prev => [...prev, { ...v, id: data.id, createdAt: data.created_at }])
   }
 
   async function updateVacation(id: string, patch: Partial<Vacation>) {
+    if (!SUPABASE_CONFIGURED) {
+      setVacations(prev => prev.map(v => v.id === id ? { ...v, ...patch } : v))
+      return
+    }
     const dbPatch: Record<string, unknown> = {}
     if (patch.status !== undefined) dbPatch.status = patch.status
     if (patch.backupId !== undefined) dbPatch.backup_id = patch.backupId
@@ -111,7 +134,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
     if (patch.fluigProtocol !== undefined) dbPatch.fluig_protocol = patch.fluigProtocol
     if (patch.startDate !== undefined) dbPatch.start_date = patch.startDate
     if (patch.endDate !== undefined) dbPatch.end_date = patch.endDate
-
     const { error } = await supabase.from('vacations').update(dbPatch).eq('id', id)
     if (error) throw error
     setVacations(prev => prev.map(v => v.id === id ? { ...v, ...patch } : v))
