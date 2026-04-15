@@ -24,7 +24,7 @@ export default function CollaboratorProfile() {
   const backupVacations = vacations.filter(v => v.backupId === id)
 
   function handleDeleteCollaborator() {
-    deleteCollaborator(collaborator.id)
+    deleteCollaborator(collaborator!.id)
     navigate('/collaborators')
   }
 
