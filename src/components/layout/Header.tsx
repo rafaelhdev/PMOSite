@@ -1,6 +1,11 @@
 import { useState } from 'react'
-import { Link, useLocation } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useApp } from '../../context/AppContext'
+import { useAuth } from '../../context/AuthContext'
+
+const SUPABASE_CONFIGURED = !!(
+  import.meta.env.VITE_SUPABASE_URL && import.meta.env.VITE_SUPABASE_ANON_KEY
+)
 
 const NAV_LINKS = [
   { to: '/', label: 'Dashboard' },
@@ -11,8 +16,17 @@ const NAV_LINKS = [
 
 export default function Header() {
   const location = useLocation()
+  const navigate = useNavigate()
   const { collaborators, currentCollaboratorId, setCurrentCollaborator } = useApp()
+  const { signOut } = useAuth()
   const [menuOpen, setMenuOpen] = useState(false)
+
+  const currentCollab = collaborators.find(c => c.id === currentCollaboratorId)
+
+  async function handleSignOut() {
+    if (SUPABASE_CONFIGURED) await signOut()
+    navigate('/login', { replace: true })
+  }
 
   return (
     <header className="bg-primary-600 text-white shadow-md">
@@ -39,18 +53,44 @@ export default function Header() {
             ))}
           </nav>
 
-          {/* User selector */}
+          {/* Usuário atual */}
           <div className="hidden md:flex items-center gap-3">
-            <span className="text-primary-200 text-xs">Logado como:</span>
-            <select
-              value={currentCollaboratorId}
-              onChange={e => setCurrentCollaborator(e.target.value)}
-              className="bg-primary-700 text-white text-sm rounded px-2 py-1 border border-primary-400 focus:outline-none"
-            >
-              {collaborators.map(c => (
-                <option key={c.id} value={c.id}>{c.name}</option>
-              ))}
-            </select>
+            {SUPABASE_CONFIGURED ? (
+              // Modo produção: exibe nome/role do colaborador vinculado ao auth.uid()
+              <div className="flex items-center gap-3">
+                <div className="text-right">
+                  <p className="text-sm font-medium text-white leading-tight">
+                    {currentCollab?.name ?? '—'}
+                  </p>
+                  <p className="text-xs text-primary-200 leading-tight">
+                    {currentCollab?.isManager ? '⭐ Gestor' : currentCollab?.role ?? ''}
+                  </p>
+                </div>
+                <button
+                  onClick={handleSignOut}
+                  title="Sair"
+                  className="text-primary-200 hover:text-white transition-colors text-sm border border-primary-400 rounded px-2 py-1 hover:border-white"
+                >
+                  Sair
+                </button>
+              </div>
+            ) : (
+              // Modo fallback/dev: selector manual para facilitar testes locais
+              <div className="flex items-center gap-3">
+                <span className="text-primary-200 text-xs">Logado como:</span>
+                <select
+                  value={currentCollaboratorId}
+                  onChange={e => setCurrentCollaborator(e.target.value)}
+                  className="bg-primary-700 text-white text-sm rounded px-2 py-1 border border-primary-400 focus:outline-none"
+                >
+                  {collaborators.map(c => (
+                    <option key={c.id} value={c.id}>
+                      {c.name}{c.isManager ? ' ⭐' : ''}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
           </div>
 
           {/* Mobile menu button */}
@@ -82,16 +122,37 @@ export default function Header() {
             </Link>
           ))}
           <div className="pt-2 border-t border-primary-500">
-            <span className="text-primary-300 text-xs block mb-1">Logado como:</span>
-            <select
-              value={currentCollaboratorId}
-              onChange={e => { setCurrentCollaborator(e.target.value); setMenuOpen(false) }}
-              className="bg-primary-800 text-white text-sm rounded px-2 py-1 border border-primary-400 w-full"
-            >
-              {collaborators.map(c => (
-                <option key={c.id} value={c.id}>{c.name}</option>
-              ))}
-            </select>
+            {SUPABASE_CONFIGURED ? (
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-white font-medium">{currentCollab?.name}</p>
+                  <p className="text-xs text-primary-300">
+                    {currentCollab?.isManager ? '⭐ Gestor' : currentCollab?.role}
+                  </p>
+                </div>
+                <button
+                  onClick={() => { handleSignOut(); setMenuOpen(false) }}
+                  className="text-xs text-primary-200 hover:text-white border border-primary-400 rounded px-2 py-1"
+                >
+                  Sair
+                </button>
+              </div>
+            ) : (
+              <>
+                <span className="text-primary-300 text-xs block mb-1">Logado como:</span>
+                <select
+                  value={currentCollaboratorId}
+                  onChange={e => { setCurrentCollaborator(e.target.value); setMenuOpen(false) }}
+                  className="bg-primary-800 text-white text-sm rounded px-2 py-1 border border-primary-400 w-full"
+                >
+                  {collaborators.map(c => (
+                    <option key={c.id} value={c.id}>
+                      {c.name}{c.isManager ? ' ⭐' : ''}
+                    </option>
+                  ))}
+                </select>
+              </>
+            )}
           </div>
         </div>
       )}

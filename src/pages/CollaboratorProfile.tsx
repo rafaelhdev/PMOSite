@@ -3,6 +3,10 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { useApp } from '../context/AppContext'
 import { VacationStatusBadge, FluigStatusBadge } from '../components/ui/StatusBadge'
 
+const SUPABASE_CONFIGURED = !!(
+  import.meta.env.VITE_SUPABASE_URL && import.meta.env.VITE_SUPABASE_ANON_KEY
+)
+
 function getInitials(name: string) {
   return name.split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase()
 }
@@ -14,18 +18,29 @@ function formatDate(d: string) {
 export default function CollaboratorProfile() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
-  const { collaborators, vacations, deleteCollaborator } = useApp()
+  const { collaborators, vacations, currentCollaboratorId, deleteCollaborator } = useApp()
   const [confirmDelete, setConfirmDelete] = useState(false)
+  const [deleteError, setDeleteError] = useState<string | null>(null)
 
   const collaborator = collaborators.find(c => c.id === id)
   if (!collaborator) return <div className="text-gray-500">Colaborador não encontrado.</div>
 
+  const currentCollab = collaborators.find(c => c.id === currentCollaboratorId)
+  const isManager = currentCollab?.isManager ?? !SUPABASE_CONFIGURED
+
   const myVacations = vacations.filter(v => v.collaboratorId === id)
   const backupVacations = vacations.filter(v => v.backupId === id)
 
-  function handleDeleteCollaborator() {
-    deleteCollaborator(collaborator!.id)
-    navigate('/collaborators')
+  async function handleDeleteCollaborator() {
+    setDeleteError(null)
+    try {
+      await deleteCollaborator(collaborator!.id)
+      navigate('/collaborators')
+    } catch (err) {
+      console.error('[CollaboratorProfile] deleteCollaborator error:', err)
+      setDeleteError('Não foi possível excluir o colaborador. Verifique suas permissões.')
+      setConfirmDelete(false)
+    }
   }
 
   return (
@@ -35,22 +50,32 @@ export default function CollaboratorProfile() {
           ← Voltar
         </button>
 
-        {!confirmDelete ? (
-          <button onClick={() => setConfirmDelete(true)} className="border border-red-300 text-red-600 px-3 py-1.5 rounded-lg text-xs font-medium hover:bg-red-50 transition-colors">
-            Excluir colaborador
-          </button>
-        ) : (
-          <div className="flex items-center gap-2">
-            <span className="text-xs text-red-600 font-medium">Confirmar exclusão?</span>
-            <button onClick={handleDeleteCollaborator} className="bg-red-600 text-white px-3 py-1 rounded text-xs hover:bg-red-700 transition-colors">
-              Sim, excluir
+        {/* Botão de exclusão visível apenas para gestores */}
+        {isManager && (
+          !confirmDelete ? (
+            <button onClick={() => setConfirmDelete(true)} className="border border-red-300 text-red-600 px-3 py-1.5 rounded-lg text-xs font-medium hover:bg-red-50 transition-colors">
+              Excluir colaborador
             </button>
-            <button onClick={() => setConfirmDelete(false)} className="border border-gray-300 text-gray-600 px-3 py-1 rounded text-xs hover:bg-gray-50 transition-colors">
-              Cancelar
-            </button>
-          </div>
+          ) : (
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-red-600 font-medium">Confirmar exclusão?</span>
+              <button onClick={handleDeleteCollaborator} className="bg-red-600 text-white px-3 py-1 rounded text-xs hover:bg-red-700 transition-colors">
+                Sim, excluir
+              </button>
+              <button onClick={() => setConfirmDelete(false)} className="border border-gray-300 text-gray-600 px-3 py-1 rounded text-xs hover:bg-gray-50 transition-colors">
+                Cancelar
+              </button>
+            </div>
+          )
         )}
       </div>
+
+      {deleteError && (
+        <div className="mb-4 alert-warning flex items-center justify-between">
+          <span>⚠️ {deleteError}</span>
+          <button onClick={() => setDeleteError(null)} className="text-warning-700 hover:text-warning-900 ml-4">✕</button>
+        </div>
+      )}
 
       {/* Profile card */}
       <div className="card mb-6">
@@ -59,7 +84,14 @@ export default function CollaboratorProfile() {
             {getInitials(collaborator.name)}
           </div>
           <div>
-            <h1 className="text-xl font-bold text-gray-900">{collaborator.name}</h1>
+            <div className="flex items-center gap-2">
+              <h1 className="text-xl font-bold text-gray-900">{collaborator.name}</h1>
+              {collaborator.isManager && (
+                <span className="text-xs bg-primary-100 text-primary-700 font-semibold px-2 py-0.5 rounded-full">
+                  ⭐ Gestor
+                </span>
+              )}
+            </div>
             <p className="text-gray-500 text-sm">{collaborator.role}</p>
             <p className="text-gray-400 text-xs mt-1">{collaborator.email}</p>
             <p className="text-gray-400 text-xs">{collaborator.github}</p>

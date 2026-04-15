@@ -22,4 +22,8 @@ export interface Collaborator {
   github: string
   avatarUrl?: string
   isBackupFor?: string[] // vacation IDs
+  /** true = gestor (pode aprovar férias, cadastrar/deletar colaboradores) */
+  isManager?: boolean
+  /** UUID do usuário no Supabase Auth (auth.users.id) */
+  userId?: string
 }

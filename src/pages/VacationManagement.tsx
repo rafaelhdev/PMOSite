@@ -14,11 +14,13 @@ function datesOverlap(s1: string, e1: string, s2: string, e2: string) {
 export default function VacationManagement() {
   const { collaborators, vacations, currentCollaboratorId, addVacation, updateVacation, deleteVacation } = useApp()
   const currentCollab = collaborators.find(c => c.id === currentCollaboratorId)!
+  const isManager = currentCollab?.isManager ?? false
 
   const [showForm, setShowForm] = useState(false)
   const [form, setForm] = useState({ startDate: '', endDate: '', backupId: '' })
   const [conflict, setConflict] = useState<string | null>(null)
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null)
+  const [actionError, setActionError] = useState<string | null>(null)
 
   const myVacations = vacations.filter(v => v.collaboratorId === currentCollaboratorId)
 
@@ -48,36 +50,89 @@ export default function VacationManagement() {
     }
   }
 
-  function submitVacation() {
-    addVacation({
-      collaboratorId: currentCollaboratorId,
-      startDate: form.startDate,
-      endDate: form.endDate,
-      status: 'intention',
-      backupId: form.backupId || undefined,
-      fluigStatus: 'not_sent',
-    })
-    setForm({ startDate: '', endDate: '', backupId: '' })
-    setConflict(null)
-    setShowForm(false)
+  async function submitVacation() {
+    setActionError(null)
+    try {
+      await addVacation({
+        collaboratorId: currentCollaboratorId,
+        startDate: form.startDate,
+        endDate: form.endDate,
+        status: 'intention',
+        backupId: form.backupId || undefined,
+        fluigStatus: 'not_sent',
+      })
+      setForm({ startDate: '', endDate: '', backupId: '' })
+      setConflict(null)
+      setShowForm(false)
+    } catch (err) {
+      console.error('[VacationManagement] addVacation error:', err)
+      setActionError('Não foi possível registrar as férias. Tente novamente.')
+    }
   }
 
-  function handleConfirmApproval(id: string) {
-    updateVacation(id, { status: 'confirmed' })
+  async function handleApprove(id: string) {
+    // #55 fix: apenas gestores podem aprovar férias
+    if (!isManager) return
+    setActionError(null)
+    try {
+      await updateVacation(id, { status: 'approved' as VacationStatus })
+    } catch (err) {
+      console.error('[VacationManagement] approve error:', err)
+      setActionError('Não foi possível aprovar. Tente novamente.')
+    }
   }
 
-  function handleDeny(id: string) {
-    updateVacation(id, { status: 'denied' })
+  async function handleConfirmApproval(id: string) {
+    setActionError(null)
+    try {
+      await updateVacation(id, { status: 'confirmed' })
+    } catch (err) {
+      console.error('[VacationManagement] confirm error:', err)
+      setActionError('Não foi possível confirmar a aprovação. Tente novamente.')
+    }
   }
 
-  function handleOpenFluig(v: Vacation) {
+  async function handleDeny(id: string) {
+    setActionError(null)
+    try {
+      await updateVacation(id, { status: 'denied' })
+    } catch (err) {
+      console.error('[VacationManagement] deny error:', err)
+      setActionError('Não foi possível cancelar. Tente novamente.')
+    }
+  }
+
+  async function handleOpenFluig(v: Vacation) {
     const protocol = `FLG-${new Date().getFullYear()}-${String(Math.floor(Math.random() * 90000) + 10000)}`
-    updateVacation(v.id, { fluigStatus: 'pending', fluigProtocol: protocol })
-    alert(`Solicitação enviada ao Fluig!\nProtocolo: ${protocol}`)
+    setActionError(null)
+    try {
+      await updateVacation(v.id, { fluigStatus: 'pending', fluigProtocol: protocol })
+      alert(`Solicitação enviada ao Fluig!\nProtocolo: ${protocol}`)
+    } catch (err) {
+      console.error('[VacationManagement] fluig error:', err)
+      setActionError('Não foi possível enviar ao Fluig. Tente novamente.')
+    }
   }
 
-  function handleFluigApprove(id: string) {
-    updateVacation(id, { fluigStatus: 'approved' })
+  async function handleFluigApprove(id: string) {
+    setActionError(null)
+    try {
+      await updateVacation(id, { fluigStatus: 'approved' })
+    } catch (err) {
+      console.error('[VacationManagement] fluigApprove error:', err)
+      setActionError('Não foi possível simular aprovação Fluig. Tente novamente.')
+    }
+  }
+
+  async function handleDeleteVacation(id: string) {
+    setActionError(null)
+    try {
+      await deleteVacation(id)
+      setConfirmDeleteId(null)
+    } catch (err) {
+      console.error('[VacationManagement] deleteVacation error:', err)
+      setActionError('Não foi possível excluir. Tente novamente.')
+    }
   }
 
   return (
@@ -91,6 +146,14 @@ export default function VacationManagement() {
           {showForm ? 'Cancelar' : '+ Registrar Intenção'}
         </button>
       </div>
+
+      {/* Erro de ação */}
+      {actionError && (
+        <div className="mb-4 alert-warning flex items-center justify-between">
+          <span>⚠️ {actionError}</span>
+          <button onClick={() => setActionError(null)} className="text-warning-700 hover:text-warning-900 ml-4">✕</button>
+        </div>
+      )}
 
       {/* Backup notifications banner */}
       {backupNotifications.length > 0 && (
@@ -225,7 +288,7 @@ export default function VacationManagement() {
                       <div className="flex items-center gap-2">
                         <span className="text-xs text-red-600 font-medium">Excluir registro?</span>
                         <button
-                          onClick={() => { deleteVacation(v.id); setConfirmDeleteId(null) }}
+                          onClick={() => handleDeleteVacation(v.id)}
                           className="bg-red-600 text-white px-3 py-1 rounded text-xs hover:bg-red-700 transition-colors"
                         >
                           Sim
@@ -241,8 +304,9 @@ export default function VacationManagement() {
                     )
                   )}
 
-                  {v.status === 'intention' && (
-                    <button onClick={() => updateVacation(v.id, { status: 'approved' as VacationStatus })} className="btn-primary text-xs px-3 py-1.5">
+                  {/* #55 fix: botão de aprovação visível apenas para gestores */}
+                  {v.status === 'intention' && isManager && (
+                    <button onClick={() => handleApprove(v.id)} className="btn-primary text-xs px-3 py-1.5">
                       Aprovar (gestor)
                     </button>
                   )}

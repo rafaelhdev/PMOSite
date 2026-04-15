@@ -2,17 +2,49 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useApp } from '../context/AppContext'
 
-export default function CollaboratorRegister() {
-  const { addCollaborator } = useApp()
-  const navigate = useNavigate()
-  const [form, setForm] = useState({ name: '', role: '', email: '', github: '' })
-  const [success, setSuccess] = useState(false)
+const SUPABASE_CONFIGURED = !!(
+  import.meta.env.VITE_SUPABASE_URL && import.meta.env.VITE_SUPABASE_ANON_KEY
+)
 
-  function handleSubmit(e: React.FormEvent) {
+export default function CollaboratorRegister() {
+  const { addCollaborator, collaborators, currentCollaboratorId } = useApp()
+  const navigate = useNavigate()
+  const [form, setForm] = useState({ name: '', role: '', email: '', github: '', isManager: false })
+  const [success, setSuccess] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [submitting, setSubmitting] = useState(false)
+
+  const currentCollab = collaborators.find(c => c.id === currentCollaboratorId)
+  const isManager = currentCollab?.isManager ?? !SUPABASE_CONFIGURED
+
+  // Apenas gestores podem cadastrar colaboradores
+  if (SUPABASE_CONFIGURED && !isManager) {
+    return (
+      <div className="max-w-lg mx-auto">
+        <div className="card text-center">
+          <p className="text-gray-500 text-sm">Apenas gestores podem cadastrar colaboradores.</p>
+          <button onClick={() => navigate('/collaborators')} className="btn-primary mt-4 text-sm">
+            Voltar para lista
+          </button>
+        </div>
+      </div>
+    )
+  }
+
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    addCollaborator(form)
-    setSuccess(true)
-    setTimeout(() => navigate('/collaborators'), 1500)
+    setError(null)
+    setSubmitting(true)
+    try {
+      await addCollaborator({ ...form, isManager: form.isManager })
+      setSuccess(true)
+      setTimeout(() => navigate('/collaborators'), 1500)
+    } catch (err) {
+      console.error('[CollaboratorRegister] addCollaborator error:', err)
+      setError('Não foi possível cadastrar o colaborador. Verifique se o e-mail já está em uso.')
+    } finally {
+      setSubmitting(false)
+    }
   }
 
   return (
@@ -22,6 +54,13 @@ export default function CollaboratorRegister() {
       {success && (
         <div className="mb-4 p-3 bg-green-100 text-green-800 rounded-lg text-sm">
           Colaborador cadastrado com sucesso! Redirecionando...
+        </div>
+      )}
+
+      {error && (
+        <div className="mb-4 alert-warning flex items-center justify-between">
+          <span>⚠️ {error}</span>
+          <button onClick={() => setError(null)} className="text-warning-700 hover:text-warning-900 ml-4">✕</button>
         </div>
       )}
 
@@ -74,12 +113,26 @@ export default function CollaboratorRegister() {
           />
         </div>
 
+        <div className="flex items-center gap-3">
+          <input
+            id="isManager"
+            type="checkbox"
+            checked={form.isManager}
+            onChange={e => setForm({ ...form, isManager: e.target.checked })}
+            className="h-4 w-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500"
+          />
+          <label htmlFor="isManager" className="text-sm font-medium text-gray-700">
+            Gestor (pode aprovar férias e cadastrar colaboradores)
+          </label>
+        </div>
+
         <div className="flex gap-3 pt-2">
           <button
             type="submit"
-            className="flex-1 bg-primary-600 text-white py-2 rounded-lg text-sm font-medium hover:bg-primary-700 transition-colors"
+            disabled={submitting}
+            className="flex-1 bg-primary-600 text-white py-2 rounded-lg text-sm font-medium hover:bg-primary-700 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
           >
-            Cadastrar
+            {submitting ? 'Cadastrando…' : 'Cadastrar'}
           </button>
           <button
             type="button"
