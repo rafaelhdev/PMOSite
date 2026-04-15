@@ -10,6 +10,8 @@ interface AppContextType {
   addCollaborator: (c: Omit<Collaborator, 'id'>) => Promise<void>
   addVacation: (v: Omit<Vacation, 'id' | 'createdAt'>) => Promise<void>
   updateVacation: (id: string, patch: Partial<Vacation>) => Promise<void>
+  deleteCollaborator: (id: string) => void
+  deleteVacation: (id: string) => void
   setCurrentCollaborator: (id: string) => void
 }
 
@@ -34,7 +36,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
       ])
 
       if (collabs) {
-        const mapped: Collaborator[] = collabs.map(c => ({
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const mapped: Collaborator[] = collabs.map((c: any) => ({
           id: c.id,
           name: c.name,
           role: c.role,
@@ -49,7 +52,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
       }
 
       if (vacs) {
-        const mapped: Vacation[] = vacs.map(v => ({
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const mapped: Vacation[] = vacs.map((v: any) => ({
           id: v.id,
           collaboratorId: v.collaborator_id,
           startDate: v.start_date,
@@ -113,6 +117,15 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setVacations(prev => prev.map(v => v.id === id ? { ...v, ...patch } : v))
   }
 
+  function deleteCollaborator(id: string) {
+    setCollaborators(prev => prev.filter(c => c.id !== id))
+    setVacations(prev => prev.filter(v => v.collaboratorId !== id))
+  }
+
+  function deleteVacation(id: string) {
+    setVacations(prev => prev.filter(v => v.id !== id))
+  }
+
   return (
     <AppContext.Provider value={{
       collaborators,
@@ -122,6 +135,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
       addCollaborator,
       addVacation,
       updateVacation,
+      deleteCollaborator,
+      deleteVacation,
       setCurrentCollaborator: setCurrentCollaboratorId,
     }}>
       {children}
