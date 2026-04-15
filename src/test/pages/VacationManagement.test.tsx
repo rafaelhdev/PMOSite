@@ -1,12 +1,19 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { screen, fireEvent, waitFor, within, render } from '@testing-library/react'
+import { screen, fireEvent, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { MemoryRouter } from 'react-router-dom'
-import { AppProvider } from '../../context/AppContext'
 import VacationManagement from '../../pages/VacationManagement'
+import { renderWithProviders } from '../utils/renderWithProviders'
 
 vi.mock('../../lib/supabase', () => ({
-  supabase: { from: vi.fn() },
+  supabase: {
+    from: vi.fn(),
+    auth: {
+      getSession: vi.fn().mockResolvedValue({ data: { session: null } }),
+      onAuthStateChange: vi.fn().mockReturnValue({
+        data: { subscription: { unsubscribe: vi.fn() } },
+      }),
+    },
+  },
 }))
 
 beforeEach(() => {
@@ -14,14 +21,7 @@ beforeEach(() => {
 })
 
 function renderVacation() {
-  const result = render(
-    <MemoryRouter>
-      <AppProvider>
-        <VacationManagement />
-      </AppProvider>
-    </MemoryRouter>
-  )
-  return result
+  return renderWithProviders(<VacationManagement />)
 }
 
 function getDateInputs(container: HTMLElement) {
@@ -159,8 +159,9 @@ describe('VacationManagement', () => {
     const selects = container.querySelectorAll('select')
     const backupSelect = selects[0]
     const options = within(backupSelect).getAllByRole('option')
-    // "Selecione um backup" + Rebeca (não Rafael, que é o atual)
-    expect(options).toHaveLength(2)
+    // "Selecione um backup" + Rebeca + Gestor PMO (não Rafael, que é o atual)
+    expect(options).toHaveLength(3)
     expect(options[1]).toHaveTextContent('Rebeca Valgueiro')
+    expect(options[2]).toHaveTextContent('Gestor PMO')
   })
 })

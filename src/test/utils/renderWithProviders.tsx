@@ -1,5 +1,6 @@
 import { render, type RenderOptions } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
+import { AuthProvider } from '../../context/AuthContext'
 import { AppProvider } from '../../context/AppContext'
 import type { ReactNode } from 'react'
 
@@ -10,7 +11,9 @@ interface WrapperOptions extends RenderOptions {
 function Wrapper({ children }: { children: ReactNode }) {
   return (
     <MemoryRouter>
-      <AppProvider>{children}</AppProvider>
+      <AuthProvider>
+        <AppProvider>{children}</AppProvider>
+      </AuthProvider>
     </MemoryRouter>
   )
 }

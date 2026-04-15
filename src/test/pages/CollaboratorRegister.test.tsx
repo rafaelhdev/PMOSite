@@ -5,7 +5,15 @@ import CollaboratorRegister from '../../pages/CollaboratorRegister'
 import { renderWithProviders } from '../utils/renderWithProviders'
 
 vi.mock('../../lib/supabase', () => ({
-  supabase: { from: vi.fn() },
+  supabase: {
+    from: vi.fn(),
+    auth: {
+      getSession: vi.fn().mockResolvedValue({ data: { session: null } }),
+      onAuthStateChange: vi.fn().mockReturnValue({
+        data: { subscription: { unsubscribe: vi.fn() } },
+      }),
+    },
+  },
 }))
 
 describe('CollaboratorRegister', () => {

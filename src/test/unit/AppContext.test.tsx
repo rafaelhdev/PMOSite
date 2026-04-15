@@ -9,10 +9,18 @@ vi.mock('../../lib/supabase', () => ({
       select: vi.fn().mockReturnThis(),
       insert: vi.fn().mockReturnThis(),
       update: vi.fn().mockReturnThis(),
+      delete: vi.fn().mockReturnThis(),
       eq: vi.fn().mockReturnThis(),
       order: vi.fn().mockReturnThis(),
       single: vi.fn().mockResolvedValue({ data: null, error: null }),
     })),
+    auth: {
+      getSession: vi.fn().mockResolvedValue({ data: { session: null } }),
+      getUser: vi.fn().mockResolvedValue({ data: { user: null } }),
+      onAuthStateChange: vi.fn().mockReturnValue({
+        data: { subscription: { unsubscribe: vi.fn() } },
+      }),
+    },
   },
 }))
 
@@ -20,13 +28,18 @@ const wrapper = ({ children }: { children: ReactNode }) => (
   <AppProvider>{children}</AppProvider>
 )
 
+// FALLBACK_COLLABORATORS agora tem 3 itens: Rafael, Rebeca e Gestor PMO
+const EXPECTED_FALLBACK_COUNT = 3
+
 describe('AppContext — fallback data (sem Supabase)', () => {
-  it('inicializa com os 2 colaboradores de fallback', async () => {
+  it(`inicializa com os ${EXPECTED_FALLBACK_COUNT} colaboradores de fallback`, async () => {
     const { result } = renderHook(() => useApp(), { wrapper })
     await act(async () => {})
-    expect(result.current.collaborators).toHaveLength(2)
+    expect(result.current.collaborators).toHaveLength(EXPECTED_FALLBACK_COUNT)
     expect(result.current.collaborators[0].name).toBe('Rafael Silva')
     expect(result.current.collaborators[1].name).toBe('Rebeca Valgueiro')
+    expect(result.current.collaborators[2].name).toBe('Gestor PMO')
+    expect(result.current.collaborators[2].isManager).toBe(true)
   })
 
   it('inicializa com 1 férias de fallback', async () => {
@@ -55,8 +68,8 @@ describe('AppContext — fallback data (sem Supabase)', () => {
         name: 'Novo Dev', role: 'Backend', email: 'novo@sidi.org.br', github: '@novodev',
       })
     })
-    expect(result.current.collaborators).toHaveLength(3)
-    expect(result.current.collaborators[2].name).toBe('Novo Dev')
+    expect(result.current.collaborators).toHaveLength(EXPECTED_FALLBACK_COUNT + 1)
+    expect(result.current.collaborators[EXPECTED_FALLBACK_COUNT].name).toBe('Novo Dev')
   })
 
   it('addVacation adiciona nova férias ao estado', async () => {
@@ -92,8 +105,8 @@ describe('AppContext — fallback data (sem Supabase)', () => {
     await act(async () => {})
     const vacationId = result.current.vacations[0].id
 
-    act(() => {
-      result.current.deleteVacation(vacationId)
+    await act(async () => {
+      await result.current.deleteVacation(vacationId)
     })
 
     expect(result.current.vacations).toHaveLength(0)
@@ -103,11 +116,11 @@ describe('AppContext — fallback data (sem Supabase)', () => {
     const { result } = renderHook(() => useApp(), { wrapper })
     await act(async () => {})
     // colaborador '2' tem as férias de fallback
-    act(() => {
-      result.current.deleteCollaborator('2')
+    await act(async () => {
+      await result.current.deleteCollaborator('2')
     })
 
-    expect(result.current.collaborators).toHaveLength(1)
+    expect(result.current.collaborators).toHaveLength(EXPECTED_FALLBACK_COUNT - 1)
     expect(result.current.vacations).toHaveLength(0)
   })
 
@@ -125,8 +138,8 @@ describe('AppContext — fallback data (sem Supabase)', () => {
       })
     })
 
-    act(() => {
-      result.current.deleteCollaborator('2')
+    await act(async () => {
+      await result.current.deleteCollaborator('2')
     })
 
     expect(result.current.vacations).toHaveLength(1)
@@ -148,3 +161,7 @@ describe('AppContext — fallback data (sem Supabase)', () => {
     expect(() => renderHook(() => useApp())).toThrow('useApp must be used inside AppProvider')
   })
 })
+
+// Testes do beforeEach não são necessários neste arquivo (cada it cria seu próprio hook)
+// mas declaramos para satisfazer o import do beforeEach
+beforeEach(() => {})

@@ -4,7 +4,15 @@ import Header from '../../components/layout/Header'
 import { renderWithProviders } from '../utils/renderWithProviders'
 
 vi.mock('../../lib/supabase', () => ({
-  supabase: { from: vi.fn() },
+  supabase: {
+    from: vi.fn(),
+    auth: {
+      getSession: vi.fn().mockResolvedValue({ data: { session: null } }),
+      onAuthStateChange: vi.fn().mockReturnValue({
+        data: { subscription: { unsubscribe: vi.fn() } },
+      }),
+    },
+  },
 }))
 
 describe('Header', () => {
@@ -24,7 +32,8 @@ describe('Header', () => {
     expect(screen.getAllByRole('link', { name: 'Férias' }).length).toBeGreaterThan(0)
   })
 
-  it('exibe seletor de colaborador com colaboradores de fallback', () => {
+  it('exibe seletor de colaborador com colaboradores de fallback (modo dev)', () => {
+    // Em fallback mode (sem Supabase configurado), o seletor manual aparece
     renderWithProviders(<Header />)
     const selects = screen.getAllByRole('combobox')
     expect(selects.length).toBeGreaterThan(0)
@@ -35,7 +44,7 @@ describe('Header', () => {
   it('botão de menu mobile abre o menu mobile', () => {
     renderWithProviders(<Header />)
     const menuBtn = screen.getByRole('button', { name: /menu/i })
-    // Antes de abrir: só 1 "Logado como:" (desktop, que não tem CSS aplicado no jsdom)
+    // Antes de abrir: só 1 "Logado como:" (desktop)
     expect(screen.getAllByText('Logado como:').length).toBe(1)
     fireEvent.click(menuBtn)
     // Após abrir: 2 ocorrências (desktop + mobile)
